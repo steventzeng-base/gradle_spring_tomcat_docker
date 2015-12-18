@@ -1,0 +1,50 @@
+plugins {
+    id 'com.bmuschko.cargo' version '2.2.2'
+}
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'idea'
+
+ext {
+    cargoVersion = '1.4.17'
+    springVersion = '4.2.3.RELEASE'
+    slf4jVersion = '1.7.13'
+}
+
+sourceCompatibility = '1.8'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile ("org.springframework:spring-context:$springVersion"){
+        exclude module: 'commons-logging'
+    }
+    compile "org.springframework:spring-webmvc:$springVersion"
+    compile "org.slf4j:slf4j-api:$slf4jVersion", 'ch.qos.logback:logback-classic:1.1.3'
+    runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+    providedCompile 'javax:javaee-api:7.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    cargo "org.codehaus.cargo:cargo-core-uberjar:$cargoVersion", "org.codehaus.cargo:cargo-ant:$cargoVersion"
+}
+
+cargo {
+    containerId = 'tomcat8x'
+    port = 8080
+    local {
+        homeDir = file('/usr/local/apache-tomcat-8.0.30')
+        outputFile = file('build/output.log')
+//        containerProperties {
+//            property 'cargo.tomcat.ajp.port', 9099
+//        }
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
